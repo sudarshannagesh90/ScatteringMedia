@@ -89,23 +89,23 @@ methods
         imageInElectrons = floor(imageInElectrons);
         imageInElectrons = poissrnd(imageInElectrons);
         for ind = 1:size(imageInElectrons,3)
-            imageInElectrons(:,:,ind) = awgn(imageInElectrons(:,:,ind),obj.readNoise^2);
+            imageInElectrons(:,:,ind) = imageInElectrons(:,:,ind)+obj.readNoise*randn(size(imageInElectrons(:,:,ind)));
         end
         imageInElectrons = min(imageInElectrons,obj.fullWellCapacity);
-        maxVals          = squeeze(max(max(imageInElectrons)));
-        if maxVals(obj.saturationImageIndex)<=obj.fullWellCapacity
-           gain             = floor(2^(obj.numberOfBits)/maxVals(obj.saturationImageIndex));
-           imageInVolts     = gain*imageInElectrons;
-        else
-           checkVector      = maxVals<=obj.fullWellCapacity;
-           if find(checkVector)~=[]
-              obj.saturationImageIndex  =  find(checkVector, 1, 'last' );
-              gain                      =  floor(2^(obj.numberOfBits)/maxVals(obj.saturationImageIndex));
-              imageInVolts              =  gain*imageInElectrons;
-           end
+        imageInElectrons(imageInElectrons<=0) = 0;
+        maxVals            = squeeze(max(max(imageInElectrons)));
+        [maxValue]= max(maxVals);  
+        maxIndex  = find(maxVals == max(maxVals(:)));
+        maxIndex  = min(maxIndex);
+        disp(['Maximum-number of electrons: ',num2str(maxValue),' and index is ',num2str(maxIndex)])
+        if maxVals(obj.saturationImageIndex-1)==obj.fullWellCapacity
+           disp(['ImageIndex ',num2str(obj.saturationImageIndex-1),' is also saturated']);
+           disp(['Reduce the saturation image index or reduce the number of photons in simulation or amplification gain']);
         end
-        imageInVolts     = floor(imageInVolts);
-        res              = dec2bin(imageInVolts,12);
+        gain          =  (2^(obj.numberOfBits)-1)/maxVals(obj.saturationImageIndex);
+        imageInVolts  =  gain*imageInElectrons;
+        imageInVolts  =  floor(imageInVolts);
+        res           =  dec2bin(imageInVolts,12);
     end
 end
 
