@@ -85,14 +85,13 @@ methods
     function res = mtimes(obj,x)
         x   = reshape(x,obj.objectSizePixels);
         x   = double(x);
+        %% Convert photons to electrons 
         imageInElectrons = x*obj.quantumEfficiency+obj.darkCurrent*obj.exposureDuration;
         imageInElectrons = floor(imageInElectrons);
+        %% Add poisson noise and apply full-well capacity
         imageInElectrons = poissrnd(imageInElectrons);
-        for ind = 1:size(imageInElectrons,3)
-            imageInElectrons(:,:,ind) = imageInElectrons(:,:,ind)+obj.readNoise*randn(size(imageInElectrons(:,:,ind)));
-        end
         imageInElectrons = min(imageInElectrons,obj.fullWellCapacity);
-        imageInElectrons(imageInElectrons<=0) = 0;
+        %% Compute saturated images  
         maxVals            = squeeze(max(max(imageInElectrons)));
         [maxValue]= max(maxVals);  
         maxIndex  = find(maxVals == max(maxVals(:)));
@@ -102,7 +101,14 @@ methods
            disp(['ImageIndex ',num2str(obj.saturationImageIndex-1),' is also saturated']);
            disp(['Reduce the saturation image index or reduce the number of photons in simulation or amplification gain']);
         end
+        %% Apply read-noise 
+        for ind = 1:size(imageInElectrons,3)
+            imageInElectrons(:,:,ind) = imageInElectrons(:,:,ind)+obj.readNoise*randn(size(imageInElectrons(:,:,ind)));
+        end
+        imageInElectrons(imageInElectrons<=0) = 0;
+        %% Compute gain of the camera 
         gain          =  (2^(obj.numberOfBits)-1)/maxVals(obj.saturationImageIndex);
+        %% Convert to volts and binarize
         imageInVolts  =  gain*imageInElectrons;
         imageInVolts  =  floor(imageInVolts);
         res           =  dec2bin(imageInVolts,12);

@@ -2,8 +2,8 @@ clc
 close all
 clear all
 %% Load the PSF and test-image
-%addpath('C:\Users\Sudarshan Nagesh\OneDrive\WeightedDeconvolution\PSFsFromMarina')
-addpath('C:\Users\Sudarshan\OneDrive\WeightedDeconvolution\PSFsFromMarina\')
+addpath('C:\Users\Sudarshan Nagesh\OneDrive\WeightedDeconvolution\PSFsFromMarina')
+%addpath('C:\Users\Sudarshan\OneDrive\WeightedDeconvolution\PSFsFromMarina\')
 load('pinhole_tau16.7_r1000_z3000_STAND-OFF.mat','sensor_xy')
 STPSF_new = sensor_xy;
 TotalPhotons               = sum(STPSF_new(:));
