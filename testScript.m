@@ -2,12 +2,12 @@ clc
 close all
 clear all
 %% Load the PSF and test-image
-addpath('C:\Users\Sudarshan Nagesh\OneDrive\WeightedDeconvolution\PSFsFromMarina')
-%addpath('C:\Users\Sudarshan\OneDrive\WeightedDeconvolution\PSFsFromMarina\')
+%addpath('C:\Users\Sudarshan Nagesh\OneDrive\WeightedDeconvolution\PSFsFromMarina')
+addpath('C:\Users\Sudarshan\OneDrive\WeightedDeconvolution\PSFsFromMarina\')
 load('pinhole_tau16.7_r1000_z3000_STAND-OFF.mat','sensor_xy')
 STPSF_new = sensor_xy;
 TotalPhotons               = sum(STPSF_new(:));
-NumberofPhotonsSimulation  = 1e8;
+NumberofPhotonsSimulation  = 0.7e7;
 STPSF_new                  = (NumberofPhotonsSimulation/TotalPhotons)*STPSF_new;
 STPSF_new                  = floor(STPSF_new);
 %%
@@ -49,7 +49,7 @@ scatteredimages = reshape(scatteredimages,size(STPSF_new));
 
 intensifierQuantumEfficiency = 0.5;
 intensifierDarkCurrent       = 0.2;
-intensifierAmplifier         = 4;
+intensifierAmplifier         = 25;
 phosphorScreenEfficiency     = 180;
 exposureDuration             = 200e-12;
 G = ICCDIntensifierOperator(size(STPSF_new),intensifierQuantumEfficiency,intensifierDarkCurrent,intensifierAmplifier,phosphorScreenEfficiency,exposureDuration);
@@ -67,7 +67,11 @@ H = CCDSensorOperator(size(STPSF_new),quantumEfficiencyCCD,darkCurrent,readNoise
 CCDImages       = H*intensifiedImage;
 CCDImages       = bin2dec(CCDImages);
 CCDImages12bit  = reshape(CCDImages,size(STPSF_new));
+maxVals12bit    = squeeze(max(max(CCDImages12bit)));
+maxVals12bit(1:20)
 CCDImages8bit   = uint8(floor(CCDImages12bit*255/(2^numberOfBits-1)));
+maxVals8bit     = squeeze(max(max(CCDImages8bit)));
+maxVals8bit(1:20)
 figure('units','normalized','outerposition',[0 0 1 1]), imshow(CCDImages8bit(:,:,1)), colorbar
 export_fig('Figures/BlurryImage1','-png')
 figure('units','normalized','outerposition',[0 0 1 1]), imshow(CCDImages8bit(:,:,4)), colorbar

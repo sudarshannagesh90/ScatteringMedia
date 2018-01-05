@@ -92,25 +92,32 @@ methods
         imageInElectrons = poissrnd(imageInElectrons);
         imageInElectrons = min(imageInElectrons,obj.fullWellCapacity);
         %% Compute saturated images  
-        maxVals            = squeeze(max(max(imageInElectrons)));
-        [maxValue]= max(maxVals);  
-        maxIndex  = find(maxVals == max(maxVals(:)));
+        maxValsFullWell  = squeeze(max(max(imageInElectrons)));
+        [maxValue]= max(maxValsFullWell);  
+        maxIndex  = find(maxValsFullWell == max(maxValsFullWell(:)));
         maxIndex  = min(maxIndex);
         disp(['Maximum-number of electrons: ',num2str(maxValue),' and index is ',num2str(maxIndex)])
-        if maxVals(obj.saturationImageIndex-1)==obj.fullWellCapacity
+        if maxValsFullWell(obj.saturationImageIndex-1)==obj.fullWellCapacity
            disp(['ImageIndex ',num2str(obj.saturationImageIndex-1),' is also saturated']);
            disp(['Reduce the saturation image index or reduce the number of photons in simulation or amplification gain']);
-        end
+        end        
+        maxValsFullWell(1:20)
         %% Apply read-noise 
         for ind = 1:size(imageInElectrons,3)
             imageInElectrons(:,:,ind) = imageInElectrons(:,:,ind)+obj.readNoise*randn(size(imageInElectrons(:,:,ind)));
         end
         imageInElectrons(imageInElectrons<=0) = 0;
+        maxValsRead   = squeeze(max(max(floor(imageInElectrons))));
+        maxValsRead(1:20)
         %% Compute gain of the camera 
-        gain          =  (2^(obj.numberOfBits)-1)/maxVals(obj.saturationImageIndex);
+        gain          =  (2^(obj.numberOfBits)-1)/obj.fullWellCapacity;
+        (2^(obj.numberOfBits)-1)
+        maxValsFullWell(obj.saturationImageIndex)
         %% Convert to volts and binarize
         imageInVolts  =  gain*imageInElectrons;
         imageInVolts  =  floor(imageInVolts);
+        maxValsGain   = squeeze(max(max(imageInVolts)));
+        maxValsGain(1:20)
         res           =  dec2bin(imageInVolts,12);
     end
 end
