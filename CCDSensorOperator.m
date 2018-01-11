@@ -49,21 +49,27 @@ properties
     fullWellCapacity
     saturationImageIndex
     numberOfBits    
-    
+    gain
 end
 
 methods
     % Function detectorSamplingOperator - Constructor.
-    function obj = CCDSensorOperator(objectSizePixels,quantumEfficiency,darkCurrent,readNoise,exposureDuration,fullWellCapacity,saturationImageIndex,numberOfBits)
+    function obj = CCDSensorOperator(objectSizePixels,quantumEfficiency,darkCurrent,readNoise,exposureDuration,fullWellCapacity,saturationImageIndex,numberOfBits,gain)
         obj.objectSizePixels                       = objectSizePixels;
         obj.quantumEfficiency                      = quantumEfficiency;
         obj.darkCurrent                            = darkCurrent;
         obj.readNoise                              = readNoise;
         obj.exposureDuration                       = exposureDuration;
         obj.fullWellCapacity                       = fullWellCapacity;
-        obj.exposureDuration                       = exposureDuration;
         obj.saturationImageIndex                   = saturationImageIndex;
         obj.numberOfBits                           = numberOfBits;
+        if nargin == 8
+            obj.gain                                   =  (2^(obj.numberOfBits)-1)/obj.fullWellCapacity;
+            disp(['Gain is: ',num2str(obj.gain)])
+        elseif nargin == 9 
+            obj.gain                                   =  gain;
+            disp(['Gain is: ',num2str(obj.gain)])
+        end
     end
     
     % Overloaded function for conj().
@@ -110,11 +116,8 @@ methods
         maxValsRead   = squeeze(max(max(floor(imageInElectrons))));
         maxValsRead(1:20)
         %% Compute gain of the camera 
-        gain          =  (2^(obj.numberOfBits)-1)/obj.fullWellCapacity;
-        (2^(obj.numberOfBits)-1)
-        maxValsFullWell(obj.saturationImageIndex)
         %% Convert to volts and binarize
-        imageInVolts  =  gain*imageInElectrons;
+        imageInVolts  =  obj.gain*imageInElectrons;
         imageInVolts  =  floor(imageInVolts);
         maxValsGain   = squeeze(max(max(imageInVolts)));
         maxValsGain(1:20)

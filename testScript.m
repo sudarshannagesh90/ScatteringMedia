@@ -5,9 +5,9 @@ clear all
 %addpath('C:\Users\Sudarshan Nagesh\OneDrive\WeightedDeconvolution\PSFsFromMarina')
 addpath('C:\Users\Sudarshan\OneDrive\WeightedDeconvolution\PSFsFromMarina\')
 load('pinhole_tau16.7_r1000_z3000_STAND-OFF.mat','sensor_xy')
-STPSF_new = sensor_xy;
+STPSF_new                  = sensor_xy;
 TotalPhotons               = sum(STPSF_new(:));
-NumberofPhotonsSimulation  = 0.7e7;
+NumberofPhotonsSimulation  = 1e6;
 STPSF_new                  = (NumberofPhotonsSimulation/TotalPhotons)*STPSF_new;
 STPSF_new                  = floor(STPSF_new);
 %%
