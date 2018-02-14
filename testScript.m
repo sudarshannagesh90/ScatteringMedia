@@ -2,12 +2,14 @@ clc
 close all
 clear all
 %% Load the PSF and test-image
-addpath('C:\Users\Sudarshan Nagesh\OneDrive\WeightedDeconvolution\PSFsFromMarina')
-%addpath('C:\Users\Sudarshan\OneDrive\WeightedDeconvolution\PSFsFromMarina\')
+%addpath('C:\Users\Sudarshan Nagesh\OneDrive\WeightedDeconvolution\PSFsFromMarina')
+addpath('C:\Users\Sudarshan\OneDrive\WeightedDeconvolution\PSFsFromMarina\')
+addpath('CleanImages\')
+addpath('altmany-export_fig-83ee7fd\')
 load('pinhole_tau16.7_r1000_z3000_STAND-OFF.mat','sensor_xy')
 STPSF_new                  = sensor_xy;
 TotalPhotons               = sum(STPSF_new(:));
-NumberofPhotonsSimulation  = 1e6;
+NumberofPhotonsSimulation  = 9e6;
 STPSF_new                  = (NumberofPhotonsSimulation/TotalPhotons)*STPSF_new;
 STPSF_new                  = floor(STPSF_new);
 %%
@@ -39,7 +41,7 @@ ylim([0 106])
 export_fig('Figures/STPSF15','-png')
 %%
 set(0,'DefaultTextFontName','Helvetica','DefaultTextFontSize',10,'DefaultAxesFontName','Helvetica','DefaultAxesFontSize',10,'DefaultLineLineWidth',2,'DefaultLineMarkerSize',6)
-testImage = im2double(imread('cameraman.tif'));
+testImage = im2double(rgb2gray(imread('boats.png')));
 testImage = imresize(testImage,[size(STPSF_new,1) size(STPSF_new,2)]);
 testImage = testImage/max(max(testImage));
 
